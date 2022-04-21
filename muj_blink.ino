@@ -57,10 +57,17 @@ void setup() {
   // initialize digital pin myLED as an output.
   pinMode(myLED, OUTPUT);
   pinMode(myLED2, OUTPUT);
+  pinMode(7, INPUT_PULLUP);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  blink1(myLED);
-  blink2(myLED2);
+  //blink1(myLED);
+  //blink2(myLED2);
+  if (digitalRead(7) == LOW) {
+    digitalWrite(myLED, HIGH);
+  }
+  else {
+    digitalWrite(myLED, LOW);
+  }
 }
