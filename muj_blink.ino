@@ -8,6 +8,7 @@
 
 const byte BUTTON_PIN = 7;
 const byte LED1_PIN = 13;
+const byte LED2_PIN = 12;
 
 class Led {
   public:
@@ -109,7 +110,7 @@ int but_led_select = 0;
 void setup() {
   button.setup(BUTTON_PIN);
   led1.setup(LED1_PIN);
-  led2.setup(12);
+  led2.setup(LED2_PIN);
   led2.blink_high_interval = 30;
   led2.blink_low_interval = 1000;
 }
