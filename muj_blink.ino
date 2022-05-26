@@ -4,6 +4,9 @@
   blinking with two leds
   using button
   object version
+
+  Led class with number_of_blinks property 
+    if number_of_blinks == -1 led is blinking permanently
 */
 
 const byte BUTTON_PIN = 7;
@@ -18,6 +21,7 @@ class Led {
     int blink_low_interval = 1000;
     int state = 0; // 0 - off, 1 - blink, 2 - on
     unsigned long int blink_counter = 0;
+    int number_of_blinks = -1; // -1 - permanently blinking; >0 - number of flashings
     
     void setup(int ipin) {
       pinMode(ipin, OUTPUT);
@@ -28,24 +32,32 @@ class Led {
     void loop() {
       switch (state) {
         case 1:  
-          if (blink_counter <= millis()) {
-            if (blink_state == HIGH) {
-              blink_state = LOW;
-              blink_counter = millis() + blink_low_interval;
+          // led is blinking
+          if (number_of_blinks == -1 || number_of_blinks > 0) {
+            if (blink_counter <= millis()) {
+              if (blink_state == HIGH) {
+                blink_state = LOW;
+                blink_counter = millis() + blink_low_interval;
+                if (number_of_blinks > 0) {
+                  number_of_blinks--;
+                }
+              }
+              else {
+                blink_state = HIGH;
+                blink_counter = millis() + blink_high_interval;
+              }
+              digitalWrite(port, blink_state);
             }
-            else {
-              blink_state = HIGH;
-              blink_counter = millis() + blink_high_interval;
-            }
-            digitalWrite(port, blink_state);
           }
           break;
         case 0: 
+          // led is off
           {
             digitalWrite(port, LOW);
           }
           break;
         case 2: 
+          // led is on
           {
             digitalWrite(port, HIGH);
           }
@@ -112,15 +124,41 @@ void setup() {
   led1.setup(LED1_PIN);
   led2.setup(LED2_PIN);
   led2.blink_high_interval = 30;
-  led2.blink_low_interval = 1000;
+  led2.blink_low_interval = 300;
+  led2.state = 1;
+  led2.number_of_blinks = 0;
 }
 
-void loop() {
+void loop_01() {
+  // short press - change led state
+  // long press - change selected led
   int press1 = button.loop();
   if (press1 == 2) {
     but_led_select = (but_led_select + 1) % 2;
   }
   if (press1 == 1) {
+    if (but_led_select == 0) {
+      led1.state = (led1.state + 1) % 3;      
+    }
+    else {
+      led2.state = (led2.state + 1) % 3;      
+    }
+  }
+  led1.loop();
+  led2.loop();
+}
+
+void loop() {
+  // led2 button press indication
+  // short press - one flash
+  // long press - three flashes
+  int press1 = button.loop();
+  if (press1 == 2) {
+    //but_led_select = (but_led_select + 1) % 2;
+    led2.number_of_blinks = 3;
+  }
+  if (press1 == 1) {
+    led2.number_of_blinks = 1;
     if (but_led_select == 0) {
       led1.state = (led1.state + 1) % 3;      
     }
